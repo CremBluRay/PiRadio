@@ -14,6 +14,7 @@
 
 import os, argparse, random
 from colorama import Fore, Back, Style
+from multiprocessing import Process
 
 parser = argparse.ArgumentParser(prog='python PiRadio.py', description='Broadcasts WAV/MP3 file over FM using RPI GPIO #4 pin.')
 parser.add_argument("-s", "--song_file", help="Set song to play")
@@ -51,6 +52,9 @@ def start():
 	
 	print Fore.GREEN + "______________________________"
 	
+	print Fore.WHITE + "Type Choice Number:\n1. Shuffle Play\n2. Talk\n3. Exit\n\n\n"
+	userInput()
+	
 def begin():
 	print(Fore.RED + Back.WHITE + '#	PiRadio Station v1.1	#')
 	print(Style.RESET_ALL)
@@ -83,12 +87,33 @@ def playSongs():
 	print Style.RESET_ALL + "\n"
 	currentsong = ''
 	i = 0
-	while i <= len(playlist):
+	run = True
+	while run == True:
 		i = random.randint(0, len(playlist) - 1)
 		print Fore.RED + Back.WHITE + "Now Playing: " + playlist[i] + "\n"
 		print Style.RESET_ALL
-		play(playlist[i])
+		p1 = Process(target = play(playlist[i]))
+		p1.start()
+		p2 = Process(target = checkForQuit)
+		p2.start()
+		
+def talk():
+	print("Still testing. Please choose a different option")
+	userInput()
+
+def userInput():
+	choice = input(" > ")
+	processInput(choice)
+	
+def processInput(c):
+	if(c == 1): playSongs()
+	if(c == 2): talk()
+	if(c == 3): exit()
+	else:
+		userInput()
+		
+def checkForQuit():
+	if(keyboard.is_pressed('q')):
+		p1.stop()
 
 start()
-playSongs()
-
